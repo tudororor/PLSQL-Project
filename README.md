@@ -34,6 +34,3 @@ Subprograms include detailed error management, handling both predefined Oracle e
 * **Database Engine:** Oracle Database 21c
 * **Operating System:** Windows 11
 * **IDE:** DataGrip
-
----
-*Developed by **Tudor-Mihail Dănilă**.*
