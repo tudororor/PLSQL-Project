@@ -1,0 +1,1308 @@
+-- Cerinta 4
+
+CREATE SEQUENCE secv_id_client
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE CLIENT (
+  id_client INT DEFAULT secv_id_client.NEXTVAL PRIMARY KEY,
+  nume VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE,
+  telefon VARCHAR(15) UNIQUE
+);
+
+CREATE SEQUENCE secv_id_antrenor
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE ANTRENOR (
+  id_antrenor INT DEFAULT secv_id_antrenor.NEXTVAL PRIMARY KEY,
+  nume VARCHAR(100) NOT NULL,
+  telefon VARCHAR(15) UNIQUE,
+  email VARCHAR(100) UNIQUE
+);
+
+
+CREATE SEQUENCE secv_id_programare
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE PROGRAMARE (
+  id_programare INT DEFAULT secv_id_programare.NEXTVAL PRIMARY KEY,
+  id_curs INT NOT NULL,
+  data DATE NOT NULL,
+  ora_start VARCHAR2(10) NOT NULL,
+  ora_sfarsit VARCHAR2(10) NOT NULL,
+  FOREIGN KEY (id_curs) REFERENCES CURS(id_curs)
+);
+
+CREATE SEQUENCE secv_id_curs
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE CURS (
+  id_curs INT DEFAULT secv_id_curs.NEXTVAL PRIMARY KEY,
+  id_antrenor INT NOT NULL,
+  id_sala INT NOT NULL,
+  id_stil INT NOT NULL,
+  nivel VARCHAR(20) NOT NULL CHECK (nivel IN ('începător', 'intermediar', 'avansat')),
+  durata INT NOT NULL CHECK (durata > 0),
+  FOREIGN KEY (id_antrenor) REFERENCES ANTRENOR(id_antrenor),
+  FOREIGN KEY (id_sala) REFERENCES SALA(id_sala),
+  FOREIGN KEY (id_stil) REFERENCES STILDANS(id_stil)
+);
+
+CREATE SEQUENCE secv_id_studio
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE STUDIO (
+  id_studio INT DEFAULT secv_id_studio.NEXTVAL PRIMARY KEY,
+  nume VARCHAR(100) NOT NULL,
+  oras VARCHAR(100) NOT NULL,
+  adresa VARCHAR(255) NOT NULL
+);
+
+CREATE SEQUENCE secv_id_sala
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE SALA (
+  id_sala INT DEFAULT secv_id_sala.NEXTVAL PRIMARY KEY,
+  id_studio INT NOT NULL,
+  denumire VARCHAR(100) NOT NULL,
+  capacitate INT NOT NULL,
+  FOREIGN KEY (id_studio) REFERENCES STUDIO(id_studio)
+);
+
+CREATE SEQUENCE secv_id_stildans
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE STILDANS (
+  id_stil INT DEFAULT secv_id_stildans.NEXTVAL PRIMARY KEY,
+  denumire VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE SEQUENCE secv_id_sponsor
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE SPONSOR (
+  id_sponsor INT DEFAULT secv_id_sponsor.NEXTVAL PRIMARY KEY,
+  nume_firma VARCHAR(100) NOT NULL,
+  domeniu VARCHAR(100) NOT NULL
+);
+
+CREATE SEQUENCE secv_id_manager
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  MAXVALUE 999999999
+  NOCYCLE
+  NOCACHE;
+
+CREATE TABLE MANAGER (
+  id_manager INT DEFAULT secv_id_manager.NEXTVAL PRIMARY KEY,
+  nume VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  id_studio INT UNIQUE NOT NULL,
+  FOREIGN KEY (id_studio) REFERENCES STUDIO(id_studio)
+);
+
+CREATE TABLE CLIENT_SE_INSCRIE_LA_PROGRAMARE (
+  id_client INT NOT NULL,
+  id_programare INT NOT NULL,
+  status_plata VARCHAR(20) NOT NULL CHECK (status_plata IN ('plătit', 'neplătit', 'rezervat')),
+  PRIMARY KEY (id_client, id_programare),
+  FOREIGN KEY (id_client) REFERENCES CLIENT(id_client),
+  FOREIGN KEY (id_programare) REFERENCES PROGRAMARE(id_programare)
+);
+
+CREATE TABLE ANTRENOR_E_COMPETENT_IN_STILDANS (
+  id_antrenor INT NOT NULL,
+  id_stil INT NOT NULL,
+  nivel VARCHAR(20) NOT NULL CHECK (nivel IN ('începător', 'intermediar', 'avansat')),
+  PRIMARY KEY (id_antrenor, id_stil),
+  FOREIGN KEY (id_antrenor) REFERENCES ANTRENOR(id_antrenor),
+  FOREIGN KEY (id_stil) REFERENCES STILDANS(id_stil)
+);
+
+CREATE TABLE SPONSOR_SPONSORIZEAZA_STUDIO (
+  id_sponsor INT NOT NULL,
+  id_studio INT NOT NULL,
+  perioada VARCHAR(50) NOT NULL,
+  suma NUMBER(10,2) NOT NULL,
+  PRIMARY KEY (id_sponsor, id_studio, perioada),
+  FOREIGN KEY (id_sponsor) REFERENCES SPONSOR(id_sponsor),
+  FOREIGN KEY (id_studio) REFERENCES STUDIO(id_studio)
+);
+
+CREATE TABLE CURS_IMPLICA_ANTRENOR_IN_STILDANS (
+  id_curs INT NOT NULL,
+  id_antrenor INT NOT NULL,
+  id_stil INT NOT NULL,
+  PRIMARY KEY (id_curs, id_antrenor, id_stil),
+  FOREIGN KEY (id_curs) REFERENCES CURS(id_curs),
+  FOREIGN KEY (id_antrenor) REFERENCES ANTRENOR(id_antrenor),
+  FOREIGN KEY (id_stil) REFERENCES STILDANS(id_stil)
+);
+
+-- Cerinta 5
+
+INSERT INTO STUDIO (nume, oras, adresa)
+VALUES ('Studio Hex', 'Cluj-Napoca', 'Str. Eroilor 10');
+
+INSERT INTO STUDIO (nume, oras, adresa)
+VALUES ('Urban Steps', 'București', 'Bd. Unirii 45');
+
+INSERT INTO STUDIO (nume, oras, adresa)
+VALUES ('DanceVibe', 'Timișoara', 'Calea Aradului 12');
+
+INSERT INTO STUDIO (nume, oras, adresa)
+VALUES ('Step Fusion', 'Iași', 'Str. Palat 3');
+
+INSERT INTO STUDIO (nume, oras, adresa)
+VALUES ('Groove House', 'Constanța', 'Str. Mircea 21');
+
+
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (1, 'Sala Hex A', 25);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (1, 'Sala Hex B', 20);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (1, 'Sala Hex XL', 40);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (1, 'Sala Hex Mirror', 30);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (1, 'Sala Hex Lounge', 35);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (2, 'Sala Urban 1', 30);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (2, 'Sala Urban 2', 35);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (2, 'Sala Urban Roof', 20);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (3, 'Sala Vibe', 35);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (3, 'Sala Vibe Mirror', 30);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (3, 'Sala Vibe XL', 50);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (3, 'Sala Vibe Mini', 18);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (4, 'Sala Fusion', 28);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (4, 'Sala Fusion XL', 50);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (4, 'Sala Fusion Mini', 15);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (4, 'Sala Fusion Underground', 35);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (4, 'Sala Fusion Dancehall', 32);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (5, 'Sala Groove', 40);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (5, 'Sala Groove Small', 22);
+
+INSERT INTO SALA (id_studio, denumire, capacitate)
+VALUES (5, 'Sala Groove XL', 55);
+
+
+
+INSERT INTO MANAGER (nume, email, id_studio)
+VALUES ('Andreea Ionescu', 'andreea.ionescu@studiohex.ro', 1);
+
+INSERT INTO MANAGER (nume, email, id_studio)
+VALUES ('Radu Mihalache', 'radu.mihalache@urbansteps.ro', 2);
+
+INSERT INTO MANAGER (nume, email, id_studio)
+VALUES ('Elena Pavel', 'elena.pavel@dancevibe.ro', 3);
+
+INSERT INTO MANAGER (nume, email, id_studio)
+VALUES ('Dorian Costea', 'dorian.costea@stepfusion.ro', 4);
+
+INSERT INTO MANAGER (nume, email, id_studio)
+VALUES ('Larisa Dumitru', 'larisa.dumitru@groovehouse.ro', 5);
+
+
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Alina Pop', '0721123456', 'alina.pop@dans.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Mihai Rusu', '0733111222', 'mihai.rusu@urbansteps.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Iulia Dima', '0744555666', 'iulia.dima@fusion.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Robert Enache', '0755666777', 'robert.enache@hiphopzone.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Diana Florescu', '0766777888', 'diana.florescu@heels.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Cristian Neagu', '0721345678', 'cristian.neagu@vibe.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Elena Mureșan', '0733987654', 'elena.muresan@dancevibe.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Paul Stănescu', '0744765432', 'paul.stanescu@battledance.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Simona Ciobanu', '0754123987', 'simona.ciobanu@lockstyle.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Andrei Toma', '0764987123', 'andrei.toma@popmotion.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Irina Bucur', '0723123456', 'irina.bucur@freestyle.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Valentin Iacob', '0734123987', 'valentin.iacob@stepstyle.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Nicoleta Dobre', '0745321987', 'nicoleta.dobre@modern.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Tudor Maxim', '0756321122', 'tudor.maxim@streetfusion.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Sabina Georgescu', '0767421543', 'sabina.georgescu@urbanbeat.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Denis Pavel', '0729876543', 'denis.pavel@flowmotion.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Raluca Badea', '0733654123', 'raluca.badea@e-motion.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Dragoș Rădoi', '0744455666', 'dragos.radoi@downtempo.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Sorina Lupu', '0755566778', 'sorina.lupu@beats.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Marius Cernat', '0766655443', 'marius.cernat@coreo.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Ioana Dinu', '0723765123', 'ioana.dinu@classicstyle.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Alex Teodorescu', '0733987632', 'alex.teodorescu@grooveline.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Cristina Mogoș', '0744567890', 'cristina.mogos@vibedance.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('George Filip', '0754123986', 'george.filip@lockgroove.ro');
+
+INSERT INTO ANTRENOR (nume, telefon, email)
+VALUES ('Laura Mirea', '0764789512', 'laura.mirea@highstep.ro');
+
+
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Ana Iliescu', 'ana.iliescu@yahoo.com', '0722938471');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Vlad Marinescu', 'vlad.m@gmail.com', '0731654892');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Laura Drăgan', 'laura.dragan@ymail.com', '0742083910');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Cezar Voicu', 'cezar.voicu@outlook.com', '0754812763');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Oana Petrescu', 'oana.petrescu@mail.com', '0761948375');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Dorian Pavel', 'dorian.pavel@live.com', '0773126498');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Cristina Sava', 'cristina.sava@gmail.com', '0786123490');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('George Istrate', 'george.istrate@ymail.com', '0708593421');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Ioana Stanciu', 'ioana.stanciu@dancefan.ro', '0728576431');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Florin Barbu', 'florin.barbu@yahoo.com', '0732091846');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Andreea Voinea', 'andreea.voinea@clientmail.ro', '0751351364');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Tudor Dima', 'tudor.dima@clientmail.ro', '0723998168');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Ruxandra Popescu', 'ruxandra.popescu@clientmail.ro', '0754365001');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Daniel Văduva', 'daniel.văduva@clientmail.ro', '0705345391');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Cătălina Lungu', 'cătălina.lungu@clientmail.ro', '0786049173');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Ionuț Bălan', 'ionuț.bălan@clientmail.ro', '0768954302');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Silvia Petcu', 'silvia.petcu@clientmail.ro', '0747213908');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Alexandru Damian', 'alexandru.damian@clientmail.ro', '0731862540');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Bianca Rădoi', 'bianca.rădoi@clientmail.ro', '0775436218');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Radu Ionescu', 'radu.ionescu@clientmail.ro', '0781305627');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Mara Păcuraru', 'mara.păcuraru@clientmail.ro', '0721568493');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Cosmin Anton', 'cosmin.anton@clientmail.ro', '0754389026');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Teodora Lazăr', 'teodora.lazăr@clientmail.ro', '0761023859');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Mihnea Stancu', 'mihnea.stancu@clientmail.ro', '0709143682');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Sorina Preda', 'sorina.preda@clientmail.ro', '0743917268');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Octavian Mureșan', 'octavian.mureșan@clientmail.ro', '0732874150');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Raluca Păun', 'raluca.păun@clientmail.ro', '0787459326');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Emil Croitoru', 'emil.croitoru@clientmail.ro', '0726489317');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Carina Zorilă', 'carina.zorilă@clientmail.ro', '0758093142');
+
+INSERT INTO CLIENT (nume, email, telefon)
+VALUES ('Tiberiu Dorneanu', 'tiberiu.dorneanu@clientmail.ro', '0763194720');
+
+
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Hip-Hop');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Contemporan');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Waacking');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Breakdance');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Dancehall');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('House');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Popping');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Locking');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Heels');
+
+INSERT INTO STILDANS (denumire)
+VALUES ('Commercial');
+
+
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('EnergyBoost SRL', 'nutriție sportivă');
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('FlexWear', 'echipamente sportive');
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('ArtMotion', 'producție media');
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('DanceTech', 'tehnologie pentru dans');
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('UrbanFlare', 'modă urbană');
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('PulseActive', 'evenimente sportive');
+
+INSERT INTO SPONSOR (nume_firma, domeniu)
+VALUES ('GlowFit', 'suplimente fitness');
+
+
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (18, 1, 10, 'intermediar', 60);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (12, 2, 9, 'avansat', 45);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (10, 3, 8, 'intermediar', 85);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (20, 4, 7, 'începător', 75);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (11, 5, 6, 'începător', 45);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (21, 6, 5, 'avansat', 50);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (17, 7, 4, 'avansat', 85);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (17, 8, 3, 'avansat', 60);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (18, 9, 2, 'avansat', 85);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (12, 10, 1, 'începător', 70);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (14, 11, 10, 'intermediar', 65);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (12, 12, 4, 'avansat', 70);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (7, 13, 6, 'intermediar', 90);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (8, 14, 2, 'începător', 65);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (17, 15, 6, 'începător', 90);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (21, 16, 10, 'începător', 45);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (17, 17, 1, 'începător', 50);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (15, 18, 6, 'începător', 90);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (21, 19, 5, 'avansat', 85);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (4, 20, 9, 'începător', 85);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (21, 16, 7, 'începător', 50);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (9, 14, 6, 'intermediar', 80);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (8, 2, 2, 'începător', 80);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (2, 4, 4, 'începător', 65);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (12, 15, 3, 'intermediar', 60);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (22, 15, 4, 'începător', 85);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (12, 4, 1, 'avansat', 90);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (20, 3, 4, 'începător', 80);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (25, 16, 4, 'intermediar', 45);
+
+INSERT INTO CURS (id_antrenor, id_sala, id_stil, nivel, durata)
+VALUES (1, 13, 1, 'intermediar', 70);
+
+
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (20, DATE '2025-12-28', '17:15', '18:40');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (15, DATE '2026-01-03', '15:15', '16:45');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (24, DATE '2026-01-05', '15:00', '16:05');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (3, DATE '2026-01-08', '17:15', '18:40');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (7, DATE '2026-01-10', '18:00', '19:25');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (21, DATE '2025-12-20', '19:30', '20:20');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (10, DATE '2026-01-12', '18:45', '19:55');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (18, DATE '2026-01-04', '16:00', '17:30');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (15, DATE '2026-01-15', '18:00', '19:30');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (16, DATE '2026-01-02', '18:45', '19:30');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (13, DATE '2026-01-11', '19:00', '20:30');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (23, DATE '2026-01-18', '16:30', '17:50');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (10, DATE '2026-01-06', '16:00', '17:10');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (22, DATE '2026-01-20', '18:15', '19:35');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (9, DATE '2026-01-22', '19:45', '21:10');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (8, DATE '2026-01-25', '18:30', '19:30');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (4, DATE '2026-01-07', '17:00', '18:15');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (6, DATE '2026-01-14', '16:15', '17:05');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (4, DATE '2026-01-16', '15:15', '16:30');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (17, DATE '2025-12-29', '16:00', '16:50');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (23, DATE '2026-01-21', '15:45', '17:05');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (6, DATE '2026-01-26', '19:45', '20:35');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (7, DATE '2026-01-05', '15:15', '16:40');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (15, DATE '2026-01-13', '17:45', '19:15');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (22, DATE '2026-01-08', '16:30', '17:50');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (30, DATE '2026-01-19', '18:00', '19:10');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (16, DATE '2025-12-30', '16:30', '17:15');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (9, DATE '2026-01-23', '15:00', '16:25');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (4, DATE '2026-01-28', '17:30', '18:45');
+
+INSERT INTO PROGRAMARE (id_curs, data, ora_start, ora_sfarsit)
+VALUES (6, DATE '2026-01-06', '15:45', '16:35');
+
+
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (24, 5, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (28, 21, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (3, 16, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (11, 20, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (21, 3, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (28, 22, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (11, 21, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (28, 18, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (20, 3, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (21, 22, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (8, 24, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (14, 4, 'neplătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (23, 28, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (15, 6, 'neplătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (10, 29, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (2, 11, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (10, 12, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (14, 5, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (17, 14, 'neplătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (22, 26, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (6, 6, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (20, 28, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (20, 22, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (16, 30, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (8, 15, 'neplătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (9, 15, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (22, 1, 'rezervat');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (29, 10, 'neplătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (18, 6, 'plătit');
+
+INSERT INTO CLIENT_SE_INSCRIE_LA_PROGRAMARE (id_client, id_programare, status_plata)
+VALUES (15, 12, 'neplătit');
+
+
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (1, 1, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (2, 2, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (3, 3, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (4, 4, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (5, 5, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (6, 6, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (7, 7, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (8, 8, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (9, 9, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (10, 10, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (11, 1, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (12, 2, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (13, 3, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (14, 4, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (15, 5, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (16, 6, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (17, 7, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (18, 8, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (19, 9, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (20, 10, 'intermediar');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (21, 1, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (22, 2, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (23, 3, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (24, 4, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (25, 5, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (20, 4, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (24, 7, 'începător');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (16, 4, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (10, 5, 'avansat');
+
+INSERT INTO ANTRENOR_E_COMPETENT_IN_STILDANS (id_antrenor, id_stil, nivel)
+VALUES (10, 3, 'începător');
+
+
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (3, 2, '2025-2027', 5000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (3, 3, '2025-2026', 4500);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (3, 1, '2025-2027', 7000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (6, 5, '2025-2027', 4000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (3, 5, '2025-2026', 5000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (1, 1, '2025-2026', 7000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (1, 5, '2025-2026', 5500);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (6, 5, '2025-2026', 6000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (7, 5, '2025-2026', 6500);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (7, 4, '2025-2027', 4000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (2, 2, '2025-2026', 5000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (1, 2, '2025-2026', 5000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (2, 4, '2025-2026', 7000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (4, 5, '2025-2026', 4000);
+
+INSERT INTO SPONSOR_SPONSORIZEAZA_STUDIO (id_sponsor, id_studio, perioada, suma)
+VALUES (4, 1, '2025-2027', 4500);
+
+
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (23, 15, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (29, 3, 6);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (20, 5, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (5, 9, 10);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (21, 19, 9);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (23, 11, 7);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (20, 17, 5);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (15, 17, 10);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (14, 4, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (28, 21, 9);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (24, 7, 7);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (15, 8, 7);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (11, 15, 7);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (14, 24, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (11, 14, 6);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (22, 9, 6);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (5, 22, 8);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (3, 3, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (3, 14, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (24, 24, 6);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (26, 5, 9);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (2, 19, 9);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (18, 11, 2);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (14, 12, 7);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (28, 24, 1);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (10, 20, 5);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (12, 4, 10);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (17, 7, 3);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (22, 16, 4);
+
+INSERT INTO CURS_IMPLICA_ANTRENOR_IN_STILDANS (id_curs, id_antrenor, id_stil)
+VALUES (28, 4, 6);
+
+-- Cerinta 6
+
+CREATE OR REPLACE PROCEDURE raport_oferta_studio (
+    p_id_studio IN NUMBER
+) IS
+    -- 1) 3 niveluri standard
+    TYPE t_nivele_std IS VARRAY(3) OF VARCHAR2(20);
+    v_nivele t_nivele_std := t_nivele_std('începător', 'intermediar', 'avansat');
+
+    -- 2) toate cursurile din studio
+    TYPE r_curs_info IS RECORD (
+        id_curs NUMBER,
+        nivel   VARCHAR2(20)
+    );
+    TYPE t_lista_cursuri IS TABLE OF r_curs_info;
+    v_cursuri t_lista_cursuri;
+
+    -- 3) cursurile pe fiecare nivel
+    TYPE t_stats IS TABLE OF NUMBER INDEX BY VARCHAR2(20);
+    v_statistica t_stats;
+
+    v_nume_studio STUDIO.nume%TYPE;
+    v_idx VARCHAR2(20);
+
+BEGIN
+
+    SELECT nume INTO v_nume_studio
+    FROM STUDIO
+    WHERE id_studio = p_id_studio;
+
+    DBMS_OUTPUT.PUT_LINE('=== RAPORT OFERTA STUDIO: ' || v_nume_studio || ' ===');
+
+    DBMS_OUTPUT.PUT_LINE('1) Niveluri standard analizate (VARRAY):');
+    FOR i IN 1..v_nivele.COUNT LOOP
+        DBMS_OUTPUT.PUT_LINE('   - ' || v_nivele(i));
+    END LOOP;
+
+    SELECT c.id_curs, c.nivel
+    BULK COLLECT INTO v_cursuri
+    FROM CURS c
+    JOIN SALA s ON c.id_sala = s.id_sala
+    WHERE s.id_studio = p_id_studio;
+
+    DBMS_OUTPUT.PUT_LINE('2) Lista totală de cursuri găsite (NESTED TABLE): ' || v_cursuri.COUNT || ' cursuri.');
+
+    v_statistica('începător') := 0;
+    v_statistica('intermediar') := 0;
+    v_statistica('avansat') := 0;
+
+    IF v_cursuri.COUNT > 0 THEN
+        FOR i IN v_cursuri.FIRST .. v_cursuri.LAST LOOP
+            IF v_statistica.EXISTS(v_cursuri(i).nivel) THEN
+                v_statistica(v_cursuri(i).nivel) := v_statistica(v_cursuri(i).nivel) + 1;
+            ELSE
+                v_statistica(v_cursuri(i).nivel) := 1;
+            END IF;
+        END LOOP;
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('   (Nu există cursuri programate momentan)');
+    END IF;
+
+    DBMS_OUTPUT.PUT_LINE('3) Statistica pe niveluri (ASSOCIATIVE ARRAY):');
+    v_idx := v_statistica.FIRST;
+    WHILE v_idx IS NOT NULL LOOP
+        DBMS_OUTPUT.PUT_LINE('   -> Nivel ' || v_idx || ': ' || v_statistica(v_idx) || ' cursuri');
+        v_idx := v_statistica.NEXT(v_idx);
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Eroare: Nu există niciun studio cu ID-ul ' || p_id_studio);
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Eroare neașteptată: ' || SQLERRM);
+END;
+/
+
+BEGIN
+    raport_oferta_studio(3);
+END;
+/
+
+-- Cerinta 7
+
+CREATE OR REPLACE PROCEDURE raport_logistica_studio (
+    p_id_studio IN NUMBER
+) IS
+    v_nume_studio STUDIO.nume%TYPE;
+
+    -- CURSOR 1 - neparametrizat: salile
+    CURSOR c_sali IS
+        SELECT id_sala, denumire, capacitate
+        FROM SALA
+        WHERE id_studio = p_id_studio
+        ORDER BY capacitate DESC;
+
+    -- CURSOR 2 - parametrizat: cursurile
+    CURSOR c_cursuri (cp_id_sala NUMBER) IS
+        SELECT s.denumire AS nume_stil, c.nivel
+        FROM CURS c
+        JOIN STILDANS s ON c.id_stil = s.id_stil
+        WHERE c.id_sala = cp_id_sala;
+
+    v_curs_info c_cursuri%ROWTYPE;
+
+BEGIN
+    SELECT nume INTO v_nume_studio
+    FROM STUDIO
+    WHERE id_studio = p_id_studio;
+
+    DBMS_OUTPUT.PUT_LINE('=== RAPORT LOGISTICA: ' || v_nume_studio || ' ===');
+
+    FOR r_sala IN c_sali LOOP
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+        DBMS_OUTPUT.PUT_LINE('SALA: ' || r_sala.denumire || ' (Capacitate: ' || r_sala.capacitate || ' locuri)');
+
+        OPEN c_cursuri(r_sala.id_sala);
+        LOOP
+            FETCH c_cursuri INTO v_curs_info;
+            EXIT WHEN c_cursuri%NOTFOUND;
+
+            DBMS_OUTPUT.PUT_LINE('   -> Curs: ' || v_curs_info.nume_stil || ' | Nivel: ' || v_curs_info.nivel);
+        END LOOP;
+
+        IF c_cursuri%ROWCOUNT = 0 THEN
+             DBMS_OUTPUT.PUT_LINE('   (Aceasta sală nu are cursuri alocate)');
+        END IF;
+
+        CLOSE c_cursuri;
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Eroare: Nu există studioul cu ID-ul ' || p_id_studio);
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Eroare neașteptată: ' || SQLERRM);
+END;
+/
+
+BEGIN
+    raport_logistica_studio(2);
+END;
+/
+
+-- Cerinta 8
+
+CREATE OR REPLACE FUNCTION get_data_programare_client(
+    p_id_client IN NUMBER
+) RETURN VARCHAR2
+IS
+    v_nume_client CLIENT.nume%TYPE;
+    v_data_prog   DATE;
+BEGIN
+    SELECT c.nume, p."DATA"
+    INTO v_nume_client, v_data_prog
+    FROM CLIENT c
+    JOIN CLIENT_SE_INSCRIE_LA_PROGRAMARE i ON c.id_client = i.id_client
+    JOIN PROGRAMARE p ON i.id_programare = p.id_programare
+    WHERE c.id_client = p_id_client
+      AND p."DATA" >= TRUNC(SYSDATE);
+
+    RETURN 'Clientul ' || v_nume_client || ' are o programare viitoare pe data de: ' || TO_CHAR(v_data_prog, 'DD-MM-YYYY');
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'CLIENTUL NU ARE PROGRAMARI VIITOARE';
+
+    WHEN TOO_MANY_ROWS THEN
+        RETURN 'CLIENTUL ARE MAI MULTE PROGRAMARI VIITOARE';
+END;
+/
+
+SELECT get_data_programare_client(1) AS REZULTAT FROM DUAL;
+SELECT get_data_programare_client(3) AS REZULTAT FROM DUAL;
+SELECT get_data_programare_client(8) AS REZULTAT FROM DUAL;
+
+-- Cerinta 9
+
+CREATE OR REPLACE PROCEDURE verifica_relatie_client_antr(
+    p_id_client   IN NUMBER,
+    p_id_antrenor IN NUMBER
+) IS
+    e_client_inexistent   EXCEPTION;
+    e_antrenor_inexistent EXCEPTION;
+    e_fara_interactiune   EXCEPTION;
+
+    v_nume_client   CLIENT.nume%TYPE;
+    v_nume_antrenor ANTRENOR.nume%TYPE;
+    v_nr_intalniri  NUMBER;
+
+BEGIN
+    SELECT
+        (SELECT nume FROM CLIENT WHERE id_client = p_id_client),
+
+        (SELECT nume FROM ANTRENOR WHERE id_antrenor = p_id_antrenor),
+
+        (SELECT COUNT(*)
+         FROM CLIENT_SE_INSCRIE_LA_PROGRAMARE inr
+         JOIN PROGRAMARE p ON inr.id_programare = p.id_programare
+         JOIN CURS c ON p.id_curs = c.id_curs
+         WHERE inr.id_client = p_id_client
+           AND c.id_antrenor = p_id_antrenor)
+
+    INTO v_nume_client, v_nume_antrenor, v_nr_intalniri
+    FROM DUAL;
+
+    IF v_nume_client IS NULL THEN
+        RAISE e_client_inexistent;
+    END IF;
+
+    IF v_nume_antrenor IS NULL THEN
+        RAISE e_antrenor_inexistent;
+    END IF;
+
+    IF v_nr_intalniri = 0 THEN
+        RAISE e_fara_interactiune;
+    END IF;
+
+    DBMS_OUTPUT.PUT_LINE('SUCCES: Clientul ' || v_nume_client ||
+                         ' a participat la ' || v_nr_intalniri ||
+                         ' sesiuni cu antrenorul ' || v_nume_antrenor || '.');
+
+EXCEPTION
+    WHEN e_client_inexistent THEN
+        DBMS_OUTPUT.PUT_LINE('EROARE: Nu exista client cu ID-ul ' || p_id_client);
+
+    WHEN e_antrenor_inexistent THEN
+        DBMS_OUTPUT.PUT_LINE('EROARE: Nu exista antrenor cu ID-ul ' || p_id_antrenor);
+
+    WHEN e_fara_interactiune THEN
+        DBMS_OUTPUT.PUT_LINE('INFO: Clientul ' || v_nume_client ||
+                             ' nu a fost niciodata la antrenorul ' || v_nume_antrenor);
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Eroare neasteptata: ' || SQLERRM);
+END;
+/
+
+SET SERVEROUTPUT ON;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('--- TEST 1: SUCCES ---');
+    verifica_relatie_client_antr(10, 20);
+
+    DBMS_OUTPUT.PUT_LINE('----------------------');
+
+    DBMS_OUTPUT.PUT_LINE('--- TEST 2: CLIENT INEXISTENT ---');
+    verifica_relatie_client_antr(999, 1);
+
+    DBMS_OUTPUT.PUT_LINE('----------------------');
+
+    DBMS_OUTPUT.PUT_LINE('--- TEST 3: ANTRENOR INEXISTENT ---');
+    verifica_relatie_client_antr(1, 999);
+
+    DBMS_OUTPUT.PUT_LINE('----------------------');
+
+    DBMS_OUTPUT.PUT_LINE('--- TEST 4: FARA INTERACTIUNE ---');
+    verifica_relatie_client_antr(1, 2);
+END;
+/
+
+-- Cerinta 10
+
+CREATE OR REPLACE TRIGGER trg_fara_stergeri_antrenori
+BEFORE DELETE ON ANTRENOR
+BEGIN
+    RAISE_APPLICATION_ERROR(-20020, 'EROARE: Ștergerea antrenorilor este interzisă! Datele trebuie păstrate pentru istoric.');
+END;
+/
+
+DELETE FROM ANTRENOR WHERE id_antrenor = 1;
+
+-- Cerinta 11
+
+CREATE OR REPLACE TRIGGER trg_validare_data_prog
+BEFORE INSERT OR UPDATE ON PROGRAMARE
+FOR EACH ROW
+BEGIN
+    IF :NEW."DATA" < TRUNC(SYSDATE) THEN
+        RAISE_APPLICATION_ERROR(-20001, 'EROARE: Nu se pot face programări în trecut!');
+    END IF;
+END;
+/
+
+UPDATE PROGRAMARE
+SET data = TO_DATE('20-02-2026', 'DD-MM-YYYY')
+WHERE id_programare = 1;
+
+-- Cerinta 12
+
+CREATE OR REPLACE TRIGGER trg_blocare_drop_tabel
+BEFORE DROP ON SCHEMA
+BEGIN
+    IF ORA_DICT_OBJ_TYPE = 'TABLE' THEN
+        RAISE_APPLICATION_ERROR(-20002, 'EROARE: Nu ai voie să ștergi tabele! Structura este protejată.');
+    END IF;
+END;
+/
+
+CREATE TABLE TABEL_TEST_12 (id NUMBER);
+DROP TABLE TABEL_TEST_12;
