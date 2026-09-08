@@ -1,36 +1,36 @@
-# 🕺 Groove Station – Advanced Database Management System
+# Groove Station – Relational Database Management System
 
-## 📌 Project Overview
-**Groove Station** is a robust database solution designed to manage a large-scale network of dance studios. The system centralizes critical data regarding physical resources (studios, rooms), administrative and technical personnel (managers, instructors), clients, enrollments, and strategic partnerships (sponsorships).
+## Overview
+Groove Station is a relational database system designed to model and manage the operational workflows of a dance studio network[cite: 1]. The schema centralizes information about physical infrastructure (studios, halls), staff (managers, instructors), clientele, class enrollments, and corporate sponsorships[cite: 1].
 
-This project was developed at the Faculty of Mathematics and Computer Science, University of Bucharest.
+Developed as coursework for the Database Management Systems (DBMS) curriculum at the Faculty of Mathematics and Computer Science, University of Bucharest[cite: 1].
 
-## 🏗️ System Architecture
-The database architecture follows **Third Normal Form (3NF)** standards and consists of **13 interconnected tables**:
-* **Core Entities:** STUDIO, SALA (Room), MANAGER, ANTRENOR (Instructor), CLIENT, STILDANS (Dance Style).
-* **Relationship Entities:** PROGRAMARE (Schedule), SPONSOR, and multiple associative tables to handle Many-to-Many relationships.
+## Relational Architecture
+The database design adheres to Third Normal Form (3NF) and contains 13 interconnected tables[cite: 1]:
+* **Core Entities:** `STUDIO`, `SALA`, `MANAGER`, `ANTRENOR`, `CLIENT`, `STILDANS`
+* **Associative & Relationship Entities:** `PROGRAMARE`, `SPONSOR`, along with junction tables resolving Many-to-Many relationships[cite: 1]
 
-## 🚀 Key Technical Features
+## Core Features & Implementations
 
-### 🔹 Advanced Data Structures (PL/SQL Collections)
-Implemented reporting procedures that utilize all three types of Oracle collections:
-* **VARRAY:** For managing standard difficulty levels.
-* **Nested Tables:** For collecting and processing high volumes of course data.
-* **Associative Arrays:** For generating fast, indexed statistics.
+### PL/SQL Collections & Processing
+Data aggregation workflows leverage all three primary Oracle collection types[cite: 1]:
+* **VARRAY:** Configured for bounded sets of standard difficulty tiers[cite: 1].
+* **Nested Tables:** Used in dynamic querying and batch processing of enrollment records[cite: 1].
+* **Associative Arrays (Index-by Tables):** Employed for memory-efficient data lookup and statistical summaries[cite: 1].
 
-### 🔹 Intelligent Logistics Reporting
-A hierarchical reporting system using **Parameterized Cursors** dependent on explicit cursors to map the logistics of each studio, linking rooms to their specific scheduled sessions.
+### Cursors & Logistics Querying
+The reporting logic utilizes parameterized cursors dependent on master explicit cursors to navigate relational hierarchies (e.g., mapping studios to individual rooms and their respective schedules)[cite: 1].
 
-### 🔹 Business Logic & Validation (Triggers)
-Data integrity is enforced through advanced database triggers:
-* **Command-Level DML:** Restricts instructor deletions to preserve professional historical data.
-* **Row-Level DML:** Prevents scheduling sessions in the past to maintain calendar integrity.
-* **DDL Trigger:** Blocks accidental table deletions (DROP), protecting the overall database schema.
+### Integrity Constraints & Triggers
+Business logic enforcement and audit controls are automated via DML and DDL triggers[cite: 1]:
+* **Statement-level DML Trigger:** Prevents deletion of instructor records to maintain historical operational logs.
+* **Row-level DML Trigger:** Enforces temporal validity by rejecting past-dated session bookings.
+* **System/DDL Trigger:** Intercepts `DROP` statements to prevent unauthorized table dropping and schema corruption[cite: 1].
 
-### 🔹 Granular Exception Handling
-Subprograms include detailed error management, handling both predefined Oracle exceptions (NO_DATA_FOUND, TOO_MANY_ROWS) and user-defined exceptions for specific business scenarios.
+### Error Handling
+Procedures and functions incorporate granular exception blocks, capturing standard Oracle errors (`NO_DATA_FOUND`, `TOO_MANY_ROWS`) as well as user-defined business exceptions via `RAISE_APPLICATION_ERROR`[cite: 1].
 
-## 💻 Tech Stack
-* **Database Engine:** Oracle Database 21c
-* **Operating System:** Windows 11
-* **IDE:** DataGrip
+## Environment
+* **RDBMS:** Oracle Database 21c[cite: 1]
+* **Language:** SQL, PL/SQL[cite: 1]
+* **Development Environment:** DataGrip / SQL Developer
